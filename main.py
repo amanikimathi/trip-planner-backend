@@ -261,4 +261,4 @@ def get_balances(trip_id: int):
         "payments": payments,
     }
 
-allow_origins=["http://localhost:3000", "https://https://trip-planner-backend-ashy.vercel.app/"],
+allow_origins=["http://localhost:3000", "https://https://trip-planner-zeta-ruddy.vercel.app"],
