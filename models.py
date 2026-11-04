@@ -7,7 +7,7 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 Base = declarative_base()
 SessionLocal = sessionmaker(bind=engine)
 
@@ -62,7 +62,6 @@ class ExpenseSplit(Base):
 
 
 if __name__ == "__main__":
-    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
-    print("Tables dropped and recreated successfully.")
+    print("Tables created successfully.")
 
