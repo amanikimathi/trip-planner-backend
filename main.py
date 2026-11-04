@@ -260,4 +260,5 @@ def get_balances(trip_id: int):
         "balances": {names[uid]: c / 100 for uid, c in cents.items()},
         "payments": payments,
     }
-    
+
+allow_origins=["http://localhost:3000", "https://https://trip-planner-backend-ashy.vercel.app/"],
