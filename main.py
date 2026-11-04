@@ -6,6 +6,8 @@ from itinerary import generate_itinerary
 from models import SessionLocal, Group
 from typing import Optional
 from models import SessionLocal, Group, User, GroupMember, Expense, ExpenseSplit
+from datetime import date, timedelta
+from pydantic import BaseModel, model_validator
 
 app = FastAPI()
 
@@ -17,6 +19,9 @@ app.add_middleware(
 )
 
 
+MAX_TRIP_DAYS = 14
+
+
 class TripRequest(BaseModel):
     name: str
     destination: str
@@ -25,6 +30,24 @@ class TripRequest(BaseModel):
     budget: str
     interests: str
     trip_personality: str
+
+    @model_validator(mode="after")
+    def check_dates(self):
+        try:
+            start = date.fromisoformat(self.start_date)
+            end = date.fromisoformat(self.end_date)
+        except ValueError:
+            raise ValueError("Dates must be in YYYY-MM-DD format")
+
+        # One day of grace: the server runs in UTC, so a user's "today" can be
+        # "yesterday" on the server in the early morning
+        if start < date.today() - timedelta(days=1):
+            raise ValueError("Start date cannot be in the past")
+        if end < start:
+            raise ValueError("End date cannot be before the start date")
+        if (end - start).days + 1 > MAX_TRIP_DAYS:
+            raise ValueError(f"Trips can be at most {MAX_TRIP_DAYS} days long")
+        return self
 
 
 @app.get("/")
@@ -237,3 +260,4 @@ def get_balances(trip_id: int):
         "balances": {names[uid]: c / 100 for uid, c in cents.items()},
         "payments": payments,
     }
+    
